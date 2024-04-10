@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{{url_for('static',filename='css/style.css')}}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{url_for('static',filename='js/script.js')}}" defer></script>
+
+</head>
+<body>
+    {% block content %}
+    <div class="jumbotron text-center">
+        <h1>MovieFlix Database</h1>
+        <p>Browse Film Ratings, Release Dates and more</p> 
+    </div>
+
+    <hr>
+    <div class="container text-center">
+
+        <div>
+        <button id="add_records_btn" class="btn btn-danger" data-toggle="collapse" data-target="add_records">Add a record</button>
+        <button id="delete_records_btn" class="btn btn-danger" data-toggle="collapse" data-target="delete_records">Delete a record</button>
+        <button id="amend_records_btn" class="btn btn-danger" data-toggle="collapse" data-target="amend_records">Amend a record</button>
+        <button id="display_records_btn" class="btn btn-danger" data-toggle="collapse" data-target="search_records">Display Records</button>
+        </div>
+        <br>
+
+<!-- Add Records Menu -->
+<div id="add_records" class="collapse p2">
+    <div class="container border border-dark">
+        <div class="row">
+
+            <div class="m-2">
+                <form id="add_data_form" action="/add_film" method="POST">
+                    
+                    Title: <input class="col-2" type="text" name="title" id="title" placeholder="Star Wars">
+                    Release Year: <input class="col-1" type="text" name="release_year" id="release_year" placeholder="1983">
+                    <label for="rating">Rating: </label>
+                    <select name="rating" id="rating">
+                        <option value="PG">PG</option>
+                        <option value="G">G</option>
+                        <option value="R">R</option>
+                    </select>
+                    Runtime: <input class = "col-1" type="text" name="runtime" id="runtime" placeholder="123">
+
+                    <label for="genre">Genre: </label>
+                    <select name="genre" id="genre">
+                        <option value="Action">Action</option>
+                        <option value="Fantasy">Fantasy</option>
+                        <option value="Crime">Crime</option>
+                        <option value="Comedy">Comedy</option>
+                        <option value="Animation">Animation</option>
+                        <option value="Fighting">Fighting</option>
+                    </select>
+                    <button class="btn btn-danger" action="/add_film" method="POST" type="submit" id="submit_button">Submit</button>
+                </form>
+
+
+                
+            </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <p id = add_error_message class="text-danger collapse">Missing fields: please input data for every field</p>
+        </div>
+    </div>
+    </div>
+</div>
+
+
+<!-- Delete Records Menu -->
+<div id="delete_records" class="collapse p2">
+    <div class="container border border-dark">
+        <div class="row">
+            <div class="col-10 p-3">
+                <form id="delete_data_form" action="/delete_film" method="POST">
+                    <label for="del_filmID">Please insert ID of film you wish to Delete:</label>
+                    <input type="text" name="del_filmID" id="del_filmID" placeholder="Film ID">
+                </form>
+            </div>
+            <div class = 'col-2 p-3'>
+                <input id='delete_button' class="btn btn-danger" type="submit" value="Delete">
+            </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <p id = del_error_message class="text-danger collapse">No record with Film ID: <span id="del_error_filmID"></span> found in the films table.</p>
+        </div>
+    </div>
+
+    </div>
+</div>
+
+<!-- Amend Records Menu -->
+<div id="amend_records" class="collapse p2">
+    <div  class="container border border-dark">
+        <div class="row">
+            <div id = "amend_records_menu" class="col-10 p-3 collapse show">
+                <form id="amend_data_form" action="/amend_film" method="POST">
+                    <label for="amend_filmID">Please insert ID of film you wish to amend:</label>
+                    <input type="text" name="amend_filmID" id="amend_filmID" placeholder="Film ID">
+                    <label for="amend_update">Update:</label>
+                    <select name="amend_update" id="amend_update">
+                        <option value="one_record">One Record</option>
+                        <option value="all_records">All Records</option>
+                    </select>
+                </form>
+            </div>
+        <!-- expand option for one update -->
+
+            <div class="col-10 p-3 collapse" id="one_amend_expand">
+                <p>Update record for :                  
+                <select name="one_amend_category" id="one_amend_category">
+                    <option value="title">Title</option>
+                    <option value="yearReleased">Release Year</option>
+                    <option value="rating">Rating</option>
+                    <option value="runtime">Runtime (Minutes)</option>
+                    <option value="genre">Genre</option>
+                </select>
+                <label for="one_amend_content"> with </label>
+                <input type="text" name="one_amend_content" id="one_amend_content">
+                </p>
+            </div>
+
+
+        <!-- expand option for all updates -->
+
+            <div class="col collapse" id="all_amend_expand">
+                <p>Please input amended values: </p>
+                Title: <input class="col-2" type="text" name="all_title" id="all_title" placeholder="Star Wars">
+                Release Year: <input class="col-1" type="text" name="release_year" id="all_release_year" placeholder="1994">
+                <label for="rating">Rating: </label>
+                <select name="all_rating" id="all_rating">
+                    <option value="PG">PG</option>
+                    <option value="G">G</option>
+                    <option value="R">R</option>
+                </select>
+                Runtime: <input class = "col-1" type="text" name="all_runtime" id="all_runtime" placeholder="162">
+    
+                <label for="genre">Genre: </label>
+                <select name="all_genre" id="all_genre">
+                    <option value="Action">Action</option>
+                    <option value="Fantasy">Fantasy</option>
+                    <option value="Crime">Crime</option>
+                    <option value="Comedy">Comedy</option>
+                    <option value="Animation">Animation</option>
+                    <option value="Fighting">Fighting</option>
+                </select>
+            </div>
+
+
+        <div class = 'col-2 p-3'>
+            <input id='amend_button_1' class="btn btn-danger collapse show" type="submit" value="Amend">
+            <input id='amend_button_2' class="btn btn-danger collapse" type="submit" value="Amend">
+        </div>
+        
+        </div>
+        
+
+
+    <div class="row">
+        <div class="col">
+            <p id = amend_error_message class="text-danger collapse">No record with Film ID: <span id="amend_error_filmID"></span> found in the films table.</p>
+        </div>
+    </div>
+    </div>
+</div>
+
+
+<!-- display records menu -->
+<div id="display_records" class="collapse p2">
+    <div class="border border-dark">
+        <div class="row">
+            <div id = "display_records_menu" class="col-9 m-3 collapse show">
+                <form id="display_data_form" action="/display_film" method="POST">
+                    <label for="display_category">Display films where </label>
+                    <select name="display_category" id="display_category">
+                        <option value="title">Title</option>
+                        <option value="yearReleased">Release Year</option>
+                        <option value="rating">Rating</option>
+                        <option value="duration">Runtime (Minutes)</option>
+                        <option value="genre">Genre</option>
+                    </select>
+                    <label for="display_update">is :</label>
+                    <input type="text" name="display_criteria" id="display_criteria" placeholder="">
+                </form>
+            </div>
+            <button id="display_records_submit" class="btn btn-danger m-3 col-2">Display Records</button>
+    </div>
+    </div>
+</div>
+
+    <br>
+
+<!-- Display Table content (hidden): -->
+<div id="display_table" class="container collapse ">
+    <div class="row">
+      <div class="col-sm">
+
+        <div class="border border-dark">
+            <table class = "table table-bordered">
+                <thead>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>ReleaseYear</th>
+                    <th>Rating</th>
+                    <th>Runtime (Minutes)</th>
+                    <th>Genre</th>
+                </thead>
+                <tbody id="display_table_body">
+                    <tr></tr>
+                </tbody>
+        </table>
+            </div>
+
+      </div>
+
+      </div>
+    </div>
+  </div>
+
+<!-- Table content: -->
+    <div id="all_table" class="container collapse show">
+        <div class="row">
+          <div class="col-sm">
+    
+            <div class="border border-dark">
+                <table class = "table table-bordered">
+                    <thead>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>ReleaseYear</th>
+                        <th>Rating</th>
+                        <th>Runtime (Minutes)</th>
+                        <th>Genre</th>
+                    </thead>
+                    <tbody>
+    
+    
+                            {% for film in films %}  
+ 
+                                <tr>
+                                    <td>{{film[0]}}</td>
+                                    <td>{{film[1]}}</td>
+                                    <td>{{film[2]}}</td>
+                                    <td>{{film[3]}}</td>
+                                    <td>{{film[4]}}</td>
+                                    <td>{{film[5]}}</td>
+                                </tr>
+
+                            {% endfor %}
+    
+                    </tbody>
+            </table>
+                </div>
+    
+          </div>
+    
+          </div>
+        </div>
+      </div>
+
+
+    {% endblock %}
+</body>
+</html>
